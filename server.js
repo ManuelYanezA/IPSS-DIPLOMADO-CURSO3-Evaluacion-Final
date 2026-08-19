@@ -20,6 +20,8 @@ app.get('/', (req, res) => res.json({ ok: true, api: 'Plataforma de Cursos' }))
 app.use('/api/auth', authRoutes)
 app.use('/api/cursos', cursoRoutes)
 
+
+// Si se usa una ruta que no existe, devuelve 404 y un mensaje de error.
 app.use((req, res) => {
   res.status(404).json({error: 'Ruta no encontrada'})
 })
