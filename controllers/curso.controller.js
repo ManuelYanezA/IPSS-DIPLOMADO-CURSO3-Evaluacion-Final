@@ -45,6 +45,8 @@ export const editar = async (req, res) => {
     if (!curso) {
       return res.status(404).json({error: 'Curso no encontrado'})
     }
+
+    return res.status(200).json(curso)
     
   } catch (error) {
     res.status(400).json({ error: error.message })

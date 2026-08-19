@@ -28,7 +28,7 @@ export const registrarProfesor = async (datos) => {
     password: passwordHash,
   })
 
-  const token = firmarToken(profesor._id, 'PROFESOR')
+  const token = firmarToken(profesor._id, 'profesor')
 
   const profesorSinPassword = profesor.toObject()
   delete profesorSinPassword.password
@@ -50,7 +50,7 @@ export const registrarAlumno = async (datos) => {
     password: passwordHash,
   })
 
-  const token = firmarToken(alumno._id, 'ALUMNO')
+  const token = firmarToken(alumno._id, 'alumno')
 
   const alumnoSinPassword = alumno.toObject()
   delete alumnoSinPassword.password
@@ -69,12 +69,12 @@ export const registrarAlumno = async (datos) => {
 export const login = async (email, password) => {
   let usuario = await Profesor.findOne({ email })
 
-  let rol = 'PROFESOR'
+  let rol = 'profesor'
 
   //Si no se encuentra un profesor con ese email, se busca un alumno.
   if (!usuario) {
     usuario = await Alumno.findOne({ email })
-    rol = 'ALUMNO'
+    rol = 'alumno'
   }
 
   //Si no se encuentra ni profesor ni alumno, se devuelve null.
