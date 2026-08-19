@@ -18,12 +18,47 @@ export const firmarToken = (id, rol) =>
 //   - créalo en la base
 //   - devuelve { token, profesor } (sin la password)
 export const registrarProfesor = async (datos) => {
-  // ...
+  
+  const { password, ...datosProfesor } = datos //Separo password del resto de datos
+
+  const passwordHash = await bcrypt.hash(password, 10) //Hasheo de password
+
+  const profesor = await Profesor.create({
+    ...datosProfesor,
+    password: passwordHash,
+  })
+
+  const token = firmarToken(profesor._id, 'PROFESOR')
+
+  const profesorSinPassword = profesor.toObject()
+  delete profesorSinPassword.password
+
+  return {
+    token,
+    profesor: profesorSinPassword,
+  }
 }
 
 // TODO: registra un alumno (igual que el profesor).
 export const registrarAlumno = async (datos) => {
-  // ...
+  const { password, ...datosAlumno } = datos
+
+  const passwordHash = await bcrypt.hash(password, 10)
+
+  const alumno = await Alumno.create({
+    ...datosAlumno,
+    password: passwordHash,
+  })
+
+  const token = firmarToken(alumno._id, 'ALUMNO')
+
+  const alumnoSinPassword = alumno.toObject()
+  delete alumnoSinPassword.password
+
+  return {
+    token,
+    alumno: alumnoSinPassword,
+  }
 }
 
 // TODO: login.
@@ -32,5 +67,34 @@ export const registrarAlumno = async (datos) => {
 //   - si coincide, devuelve { token, rol } con el rol correcto
 //   - si no, devuelve null (para que el controller responda 401)
 export const login = async (email, password) => {
-  // ...
+  let usuario = await Profesor.findOne({ email })
+
+  let rol = 'PROFESOR'
+
+  //Si no se encuentra un profesor con ese email, se busca un alumno.
+  if (!usuario) {
+    usuario = await Alumno.findOne({ email })
+    rol = 'ALUMNO'
+  }
+
+  //Si no se encuentra ni profesor ni alumno, se devuelve null.
+  if (!usuario) {
+    return null
+  }
+
+  const passwordCorrecta = await bcrypt.compare(
+    password,
+    usuario.password,
+  )
+
+  if (!passwordCorrecta) {
+    return null
+  }
+
+  const token = firmarToken(usuario._id, rol)
+
+  return {
+    token,
+    rol,
+  }
 }
